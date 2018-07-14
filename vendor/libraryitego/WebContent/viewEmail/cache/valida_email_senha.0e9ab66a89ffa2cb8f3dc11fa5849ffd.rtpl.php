@@ -1,0 +1,2 @@
+<?php if(!class_exists('Rain\Tpl')){exit;}?><h1>Edição de Senha Solicitada via Email</h1>
+<p>Para continuar o processo de edição de senha <a href="www.libraryitego.com.br/<?php echo htmlspecialchars( $rota, ENT_COMPAT, 'UTF-8', FALSE ); ?>?h=<?php echo htmlspecialchars( $hash, ENT_COMPAT, 'UTF-8', FALSE ); ?>">clique aqui</a>.</p>

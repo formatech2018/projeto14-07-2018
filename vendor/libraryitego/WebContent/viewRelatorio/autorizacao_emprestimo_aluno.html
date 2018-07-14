@@ -1,0 +1,18 @@
+<h1 class="color-fundo-titulo titulo titulo-autorizacao">Autorização de Empréstimo para Alunos</h1>
+
+<p class="p">Fica autorizado o aluno(a) <strong>{$nome_usuario}</strong>, portador do cpf <strong>{$cpf}</strong> e telefone <strong>{$telefone_celular}</strong>, que estuda no curso <strong>{$nome_curso}</strong> na instituição.</p>
+<p class="p">O empréstimo do(s) livro(s):</p>
+
+{loop="$resultado"}
+<p class="p-livros">Livro: <strong>{$value.nome_livro}</strong>, Patrimônio: <strong>{$value.idpatrimonio}</strong></p>
+{/loop}
+
+<p class="paragrafo">Durante o período de <strong>07</strong> (sete) dias, responsabilizando-se pela guarda, zelo e conservação do exemplar e de efetuar davolução no dia marcado, conforme o Estatuto da Bibliotaca.</p>
+
+<p class="paragrafo">Caso a devolução não seja realizada na prevista data, haverá cobrança de <strong>multa</strong> correspondente ao período de atraso e as demais sessões regidas pelo referido estatuto.</p>
+
+<p>Devolver em: {$devolucao}</p>
+
+<p>Anápolis {$data_emprestimo}</p>
+<div class="assinatura lado-left">Responsável pela Autorização </div>
+<div class="assinatura lado-right">Assinatura do Aluno</div>
