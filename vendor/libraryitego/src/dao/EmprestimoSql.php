@@ -153,19 +153,18 @@ class EmprestimoSql extends CrudSql
 
 	}
 
-	public function update_status_patrimonio2($idpatrimonio){
+	public function contaData($devolucao,$previsao){
 
-		$q = "UPDATE patrimonio set patrimonio_status = 1 where idpatrimonio = :ID ;";
+		$q = "SELECT DATEDIFF(:DEVOLUCAO,:PREVISAO);";
 
 		$values = array(
 
-			':ID' => $idpatrimonio
+			':DEVOLUCAO' => $devolucao,
+			':PREVISAO' => $previsao
 		);
 
 		return $this->executeSql($q,$values);
-
 	}
-
 	
 
 }

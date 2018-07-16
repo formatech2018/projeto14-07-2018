@@ -24,31 +24,45 @@
 
 			$email = $_POST['email'];
 			$senha = $_POST['senha'];
+
+			$selectUsuario = $login->select3(new Senha(),true,array('usuario' => array()),array(),array('senha_usuario' => $senha, 'email' => $email, 'usuario_status' => 0),array('idsenha' => "desc"));
+
+			if (empty($selectUsuario)) {
 			
-			$res = $login->login($email, $senha);
+				$res = $login->login($email, $senha);
 
-			if ($res->getSuccess()) {
-				$_SESSION['acesso'] = $res->getNivel();
-				$_SESSION['id'] = $res->getId(); 
-				$acesso = Controller::getAcesso($_SESSION);
-				$rain = new RainTpl($acesso);
-				$rain->setConteudo(array("mensagem","index"), array(
+				if ($res->getSuccess()) {
+					$_SESSION['acesso'] = $res->getNivel();
+					$_SESSION['id'] = $res->getId(); 
+					$acesso = Controller::getAcesso($_SESSION);
+					$rain = new RainTpl($acesso);
+					$rain->setConteudo(array("mensagem","index"), array(
 
-					"mensagem" => $res->getMessage(),
-					'resultado' => "success"
-				));
-	
-			}
-			else{
-				$acesso = Controller::getAcesso($_SESSION);
-				$rain = new RainTpl($acesso);
+						"mensagem" => $res->getMessage(),
+						'resultado' => "success"
+					));
+		
+				}
+				else{
+					$acesso = Controller::getAcesso($_SESSION);
+					$rain = new RainTpl($acesso);
+					$rain->setConteudo(array("mensagem", "login"), array(
+
+						'mensagem' => $res->getMessage(),
+						'resultado' => "danger"
+
+					));
+
+				}
+			}else{
+				$rain = new RainTpl();
 				$rain->setConteudo(array("mensagem", "login"), array(
 
-					'mensagem' => $res->getMessage(),
-					'resultado' => "danger"
+						'mensagem' => "Usuário foi desativado!",
+						'resultado' => "danger"
 
-				));
-
+					));
+				
 			}
 		}
 		

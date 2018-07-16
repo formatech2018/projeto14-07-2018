@@ -56,33 +56,38 @@ class Controller
 				break;
 		}
 
-	}
-	public static function getAcesso($value='')
-	{
-		if (isset($value['acesso'])) {
-				$acesso = $value['acesso'];
-			}else{
-				$acesso = "";
-			}
-			return $acesso;
+		}
+		public static function getAcesso($value='')
+		{
+			if (isset($value['acesso'])) {
+					$acesso = $value['acesso'];
+				}else{
+					$acesso = "";
+				}
+				return $acesso;
+		}
+
+		public function is_funcionario($idusuario)
+		{
+			$sql = new ControllerSql();
+			return $sql->is_funcionario($idusuario);
+		}
+		public function selectFuncionario($idusuario)
+		{
+			$sql = new ControllerSql();
+			return $sql->selectFuncionario($idusuario);
+		}
+		public function selectAluno($idusuario)
+		{
+			$sql = new ControllerSql();
+			return $sql->selectAluno($idusuario);
+		}	
+
+
+
+
 	}
 
-	public function is_funcionario($idusuario)
-	{
-		$sql = new ControllerSql();
-		return $sql->is_funcionario($idusuario);
-	}
-	public function selectFuncionario($idusuario)
-	{
-		$sql = new ControllerSql();
-		return $sql->selectFuncionario($idusuario);
-	}
-	public function selectAluno($idusuario)
-	{
-		$sql = new ControllerSql();
-		return $sql->selectAluno($idusuario);
-	}	
-}
 
 
 

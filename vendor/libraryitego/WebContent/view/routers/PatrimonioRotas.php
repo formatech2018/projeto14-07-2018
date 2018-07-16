@@ -39,13 +39,25 @@ class PatrimonioRotas
 		);
 		$resultado = $crud->read(new Patrimonio(),$list, array(new Livro()), $where);
 		
+			if ($resultado[1][0]['COUNT(*)'] != 0) {
+				$rain->setConteudo(array("read_patrimonio", "pagination"), array(
 
-		$rain->setConteudo(array("read_patrimonio", "pagination"), array(
+				'resultpatrimonio' => $resultado[0], 
+				'pages' => $rain->getPagination($resultado[0], $inicio,$limite,$resultado[1][0]["COUNT(*)"]),
+				'table' => 'livro/patrimonio'
+			));
+		}else{
 
-			'resultpatrimonio' => $resultado[0], 
-			'pages' => $rain->getPagination($resultado[0], $inicio,$limite,$resultado[1][0]["COUNT(*)"]),
-			'table' => 'livro/patrimonio'
-		));
+			$rain->setConteudo(array("mensagem"), array(
+
+				'mensagem' => "Este livro não possui patrimônios cadastrados no sistema!",
+				'resultado' => "danger" 
+			));
+				
+		}
+
+
+		
 		
 	}
 
@@ -193,15 +205,28 @@ class PatrimonioRotas
 			'name' => "patrimonio_status",
 			'id' => "true"
 		));
-			
-		
 
-		$rain->setConteudo(array("read_patrimonio", "pagination"), array(
+		if ($resultado[1][0]['COUNT(*)'] != 0) {
+
+			$rain->setConteudo(array("read_patrimonio", "pagination"), array(
 
 			'resultpatrimonio' => $resultado[0], 
 			'pages' => $rain->getPagination($resultado[0], $inicio,$limite,$resultado[1][0]["COUNT(*)"]),
 			'table' => 'livro/patrimonio'
 		));
+			
+		}else{
+
+			$rain->setConteudo(array("mensagem"),array(
+
+				'mensagem' => "Não existem patrimônios cadastrados no sistema!",
+				'resultado' => "danger"
+			));
+		}
+			
+		
+
+		
 	}
 
 	

@@ -31,14 +31,21 @@ class UsuarioController extends CrudController
 
 	public static function update($table)
 	{
-		$res = parent::update($table);
 
-		if (empty($res)) {
-			
-			return new Retorno(false, "Erro ao editar usuário!");
-		}else{
 
-			return new Retorno(true, "Usuário editado com sucesso!"); 
+		
+		$requireds1 = $table->getUsuario_idusuario()->getRequireds();
+		$requireds2 = $table->getUsuario_idusuario()->getEndereco_idendereco()->getRequireds();
+
+		$requireds = array_merge($requireds1,$requireds2);
+
+
+		if (CrudController::isVerifyRequireds($table,$requireds) && UsuarioController::validar_cpf($table->getUsuario_idusuario()->getCpf()) != false) {
+				
+				return parent::update($table);
+		}
+		else{
+			return array();
 		}
 	}
 

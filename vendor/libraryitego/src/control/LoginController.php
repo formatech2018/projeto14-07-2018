@@ -47,5 +47,11 @@ use \Controller\util\RetornoLogin;
 
 			 }
 		}
+
+		public function select3($table, $bool = false, $join = array(),$count = false, $condicao = array(), $ordem = array(), $group = ""){
+
+			$crud = new LoginSql();
+			return $crud->select3($table, $bool, $join,$count,$condicao,$ordem,$group);
+		}
 	}
  ?>

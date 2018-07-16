@@ -447,54 +447,75 @@ class EmprestimoRotas
 
 		$selectAluno = $control->select2(new Aluno(), true, array('usuario' => array()),array(),array('cpf' => $_POST['cpf']));
 
-		if (!empty($selectAluno)) {
-			if (!empty($res)) {
-			$status = $crud->getStatusEmprestimo($res[0]['idusuario']);
-			$rain->setConteudo(array("resultado_usuario_emprestimo"), array(
+		$selectFuncionario = $control->select2(new Funcionario(),true,array('usuario' => array()),array(),array('cpf' => $_POST['cpf']));
 
-				'cpf' => $res[0]['cpf'],
-				'nome_usuario' => $res[0]['nome_usuario'],
-				'dtnasc' => Convert::date_to_string($res[0]['dtnasc']),
-				'status' => $status[0],
-				'livrodisp' => $status[1],
-				'idusuario' => $res[0]['idusuario']
-				
-				
-			));
-		}
-		else{
+		if (empty($selectAluno) && empty($selectFuncionario)) {
+			
 			$rain->setConteudo(array("mensagem", "busca_usuario_emprestimo", "scripts_cadastro_usuario"), array(
-				'mensagem' => 'Erro ao buscar resultado',
+				'mensagem' => 'Erro ao buscar resultado!',
 				'resultado' => 'danger'
 
 			));
 
-		}
-		
+		}elseif (!empty($selectAluno)) {
+			if ($selectAluno[0]['usuario_status'] == 0) {
+				
+				$rain->setConteudo(array("mensagem", "busca_usuario_emprestimo", "scripts_cadastro_usuario"), array(
+				'mensagem' => 'O aluno ainda não está com a conta ativa no sistema!',
+				'resultado' => 'danger'
+
+				));
+			}
+			else{
+
+				$status = $crud->getStatusEmprestimo($res[0]['idusuario']);
+				$rain->setConteudo(array("resultado_usuario_emprestimo"), array(
+
+				'cpf' => $selectAluno[0]['cpf'],
+				'nome_usuario' => $selectAluno[0]['nome_usuario'],
+				'dtnasc' => Convert::date_to_string($selectAluno[0]['dtnasc']),
+				'status' => $status[0],
+				'livrodisp' => $status[1],
+				'idusuario' => $selectAluno[0]['idusuario']
+				
+				
+			));
+
+			}
+		}elseif (!empty($selectFuncionario)) {
+
+			if ($selectFuncionario[0]['usuario_status'] == 0) {
+				
+				$rain->setConteudo(array("mensagem", "busca_usuario_emprestimo", "scripts_cadastro_usuario"), array(
+				'mensagem' => 'O aluno ainda não está com a conta ativa no sistema!',
+				'resultado' => 'danger'
+
+				));
+			}
+			else{
+
+				$status = $crud->getStatusEmprestimoFuncionario($res[0]['idusuario']);
+				$rain->setConteudo(array("resultado_usuario_emprestimo_funcionario"), array(
+
+				'cpf' => $selectFuncionario[0]['cpf'],
+				'nome_usuario' => $selectFuncionario[0]['nome_usuario'],
+				'dtnasc' => Convert::date_to_string($selectFuncionario[0]['dtnasc']),
+				'status' => $status[0],
+				'livrodisp' => $status[1],
+				'idusuario' => $selectFuncionario[0]['idusuario']
+				
+				
+			));
+
+			}
+			
 		}else{
 
-			if (!empty($res)) {
-			$status = $crud-> getStatusEmprestimoFuncionario($res[0]['idusuario']);
-			$rain->setConteudo(array("resultado_usuario_emprestimo_funcionario"), array(
-
-				'cpf' => $res[0]['cpf'],
-				'nome_usuario' => $res[0]['nome_usuario'],
-				'dtnasc' => Convert::date_to_string($res[0]['dtnasc']),
-				'status' => $status[0],
-				'livrodisp' => $status[1],
-				'idusuario' => $res[0]['idusuario']
-				
-				
-			));
-		}
-		else{
 			$rain->setConteudo(array("mensagem", "busca_usuario_emprestimo", "scripts_cadastro_usuario"), array(
-				'mensagem' => 'Erro ao buscar resultado',
+				'mensagem' => 'Erro no sistema!',
 				'resultado' => 'danger'
 
 			));
-
-		}
 
 		}
 }
@@ -665,7 +686,30 @@ class EmprestimoRotas
 
 			$selectEmprestimo = $crud->select2(new Emprestimo(),true,array('usuario' => array()),array(),array('idemprestimo' => $idemprestimo));
 
-				$res_emprestimo = $crud->update_status_patrimonio2($selectEmprestimo[0]['patrimonio_idpatrimonio']);
+			$previsao_devolucao = new \DateTime($selectEmprestimo[0]['data_emprestimo'],new \DateTimeZone('America/Sao_Paulo'));
+			$previsao_devolucao->add(new \DateInterval('PT168H'));
+			$previsao =  $previsao_devolucao->format('Y-m-d');
+
+			$data_devolucao = new \DateTime($selectEmprestimo[0]['data_devolucao'],new \DateTimeZone('America/Sao_Paulo'));
+			$devolucao =  $data_devolucao->format('Y-m-d');
+
+			$resultado = $crud->contaData($devolucao,$previsao);
+
+			foreach ($resultado as $key => $value) {
+				$multa_resultado = $resultado[$key]["DATEDIFF('".$devolucao."','".$previsao."')"];
+			}             
+
+			if ($multa_resultado > 0 ) {
+				$selectvalor = $crud->select2(new Valor(),false);
+				$valor_multa = $multa_resultado * $selectvalor[0]['valor_diario_multa'];
+				
+			}
+			else{
+				echo "Você não tem multa!";
+			}
+
+
+
 		}
 
 		else{
@@ -686,13 +730,15 @@ class EmprestimoRotas
 
 		$selectUsuario = $crud->getDataToCpfUser($_POST['cpf']);
 		
+		if (!empty($selectUsuario)) {
 
 		unset($selectUsuario[0]['endereco_idendereco']);
 		$usuario = $rain->setTable($selectUsuario[0],$usuario);
 		$res = $crud->searchEmprestimosAtivos($usuario);
 		if (!empty($res)) {
+			$cpf = $crud->mask($_POST['cpf'],'###.###.###-##');
 			$rain->setConteudo(array("mensagem", "resultado_emprestimos_usuario_ativos"), array(
-				'mensagem' => "Empréstimos ativos do usuário ".$res[0]['nome_usuario']." e portador do CPF ".$res[0]['cpf'],
+				'mensagem' => "Empréstimos ativos do usuário ".$res[0]['nome_usuario']." e portador do CPF ".$cpf,
 				'resultado' => "success",
 
 				'patrimonio' => $res
@@ -701,12 +747,21 @@ class EmprestimoRotas
 			));
 		
 		}else{
-			$rain->setConteudo(array("mensagem","busca_usuario_emprestimo", "scripts_cadastro_usuario"),array(
-			'action'=> "/crud/emprestimo/usuario/disabled/search",
-			'mensagem' => "Não foram encontrados empréstimos para este CPF ".$_POST['cpf'],
-			'resultado' => "danger"
-		));
+				$rain->setConteudo(array("mensagem","busca_usuario_emprestimo", "scripts_cadastro_usuario"),array(
+				'action'=> "/crud/emprestimo/usuario/disabled/search",
+				'mensagem' => "Não foram encontrados empréstimos para este CPF ".$_POST['cpf'],
+				'resultado' => "danger"
+			
+			));
 		}		
+	 }else{
+
+	 		$rain->setConteudo(array("mensagem"),array(
+				'mensagem' => "Cpf não foi encontrado no sistema!",
+				'resultado' => "danger"
+			));
+	 }
+		
 	}
 	
 	

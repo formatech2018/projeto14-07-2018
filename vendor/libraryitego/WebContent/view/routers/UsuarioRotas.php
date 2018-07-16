@@ -95,6 +95,7 @@ class UsuarioRotas
 
 	public function get_verify(){
 		$hash = $_GET['h'];
+
 		$today = new \DateTime();
 		$today->setTimezone(new \DateTimeZone('America/Sao_Paulo'));
 		$crud = new UsuarioController();
@@ -105,6 +106,7 @@ class UsuarioRotas
 		$datasolicitacao = new \DateTime($res[0]['data_verifica'],new \DateTimeZone('America/Sao_Paulo'));
 		//$datasolicitacao->setTimezone(new \DateTimeZone('America/Sao_Paulo'));
 		$datasolicitacao->add(new \DateInterval('PT0H15M'));
+
 
 		//var_dump($datasolicitacao);
 		//$datasolicitacao = (new \DateTime($datasolicitacao))->add(new \DateInterval('PT0H15M'));
@@ -180,29 +182,6 @@ class UsuarioRotas
 		
 		$usr->setUsuario_idusuario($usuario);
 
-		foreach ($usr_select as $key => $value) {
-
-				if ($usr_select[$key]['email'] == $_POST['email']) {
-					
-					$resultado_email = $_POST['email'];
-				}
-				else{
-					unset($usr_select[$key]['email']);
-				}
-		}
-		foreach ($usr_select as $key => $value) {
-			
-				if ($usr_select[$key]['cpf'] == $_POST['cpf']) {
-					
-					$resultado_cpf = $_POST['cpf'];
-				}
-				else{
-					unset($usr_select[$key]['cpf']);
-				}
-
-		}
-
-		
 
 		if (strcmp($_POST['tipo_usuario'], "funcionario") === 0) {
 			$formacao = new Formacao();
@@ -267,7 +246,6 @@ class UsuarioRotas
 	}
 		else{
 			if (!empty($res)) {
-				
 
 				$array_usuario = array(
 				
@@ -398,7 +376,85 @@ class UsuarioRotas
 			
 		));
 
-		UsuarioRotas::alter_senha($control,$res);
+		if (!empty($res)) {
+
+			$senha = new Senha();
+			$usuario = new Usuario();
+			$usuario->setIdusuario($res[0]['usuario_idusuario']);
+		
+			$today = new \DateTime();
+			$today->setTimezone(new \DateTimeZone('America/Sao_Paulo'));
+
+		
+
+				$senha->setUsuario_idusuario($usuario);
+				$senha->setData_cadastro($today->format('Y-m-d'));
+				$senha->setSenha_usuario($_POST['senha_usuario']);
+		
+				$res2 = $control->insert($senha);
+
+				$rain->setConteudo(array("mensagem","index"), array(
+
+					'mensagem' => "Senha alterada com sucesso!",
+					'resultado' => "success"
+				));
+		}
+		else{
+
+			$rain->setConteudo(array("mensagem","index"), array(
+
+					'mensagem' => "Não foi possível alterar a senha!",
+					'resultado' => "danger"
+				));
+
+		}
+
+		
+	}
+
+	public function post_update_senha_email_forget_alter(){
+
+		
+		$rain = new RainTpl();
+		$control = new SenhaController();
+		
+		$res = $control->select2(new Senha(),true,array('usuario' => array()),array(),array(
+			'email' => $_POST['email']
+			
+		));
+
+		if (!empty($res)) {
+
+			$senha = new Senha();
+			$usuario = new Usuario();
+			$usuario->setIdusuario($res[0]['usuario_idusuario']);
+		
+			$today = new \DateTime();
+			$today->setTimezone(new \DateTimeZone('America/Sao_Paulo'));
+
+		
+
+				$senha->setUsuario_idusuario($usuario);
+				$senha->setData_cadastro($today->format('Y-m-d'));
+				$senha->setSenha_usuario($_POST['senha_usuario']);
+		
+				$res2 = $control->insert($senha);
+
+				$rain->setConteudo(array("mensagem","index"), array(
+
+					'mensagem' => "Senha alterada com sucesso!",
+					'resultado' => "success"
+				));
+		}
+		else{
+
+			$rain->setConteudo(array("mensagem","index"), array(
+
+					'mensagem' => "Não foi possível alterar a senha!",
+					'resultado' => "danger"
+				));
+
+		}
 
 		
 	}
@@ -413,7 +469,7 @@ class UsuarioRotas
 		));
 
 		$rain = new RainTpl();
-		$rain->setConteudo(array("edit_cadastro_usuario_senha_email","scripts_cadastro_usuario"));
+		$rain->setConteudo(array("edit_cadastro_usuario_senha_email_forget","scripts_cadastro_usuario"));
 
 		
 	}
@@ -425,13 +481,14 @@ class UsuarioRotas
 	}
 
 	public function post_update_senha_email_forget(){
-
+		
 		$control = new SenhaController();
 		$controlverify = new VerificaController();
 		$res = $control->select2(new Senha(),true,array('usuario' => array()),array(),array(
 			'email' => $_POST['email']
 			
 		));
+
 		$hash = Encripty::toEncripty(strtotime("now"));
 		$email = new Email();
 		$rain_email = new EmailRainTpl();
@@ -539,6 +596,7 @@ class UsuarioRotas
 						'subject' => "Alteração de senha do sistema de biblioteca do ITEGO",
 						'contents' => $html
 					));
+					unset($rain_email);
 					$rain = new RainTpl();
 					if ($res_email) {
 						

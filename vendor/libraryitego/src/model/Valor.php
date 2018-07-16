@@ -9,7 +9,7 @@ use Controller\model\Table;
 		/**
 		* @column(nome=idvalor,required=false)
 		*/
-		private $idvalor;,
+		private $idvalor;
 		/**
 		* @column(nome=valor_diario_multa,required=true)
 		*/

@@ -44,6 +44,7 @@ class UsuarioSql extends CrudSql
 
 	}
 
+	
 	public function update_status($idusuario, $status = 1){
 
 

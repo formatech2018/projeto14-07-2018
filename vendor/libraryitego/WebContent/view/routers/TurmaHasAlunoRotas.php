@@ -145,110 +145,46 @@ class TurmaHasAlunoRotas
 	public function get_insert($idaluno,$idturma){
 		$acesso = Controller::getAcesso($_SESSION);
 		$rain = new RainTpl($acesso);
-		$turma_has_aluno = new Turma_has_Aluno();
 		$crud = new TurmaHasAlunoController();
-		$turma = new Turma();
-		$curso = new Curso();
-		$tipo = new Tipo();
-		$aluno = new Aluno();
-		$usuario = new Usuario();
-		$endereco  = new Endereco();
-		$turno = new Turno();
 
-		$aluno->setIdaluno($idaluno);
-		$selectAluno = $crud->select($aluno, true, array($aluno->getUsuario_idusuario()));
+		$selectAluno = $crud->select2(new Aluno(),true,array('usuario' => array()),array(),array('idaluno' => $idaluno));
 		
-		if (!empty($selectAluno)) {
-			$endereco->setIdendereco($selectAluno[0]['endereco_idendereco']);
-		$arrayobjEndereco = array(
+		$selectTurma = $crud->select2(new Turma,true,array('curso' => array('tipo' => array()), 'turno' => array()),array(),array('idturma' => $idturma));
 
-			'endereco_idendereco' => $endereco
-		);
-		$selectAluno[0] = array_merge($selectAluno[0], $arrayobjEndereco);
-
-		$usuario = $rain->setTable($selectAluno[0], $usuario);
-
-		$arrayobjUsuario = array(
-
-			'usuario_idusuario' => $usuario
-		);
+		if (empty($selectAluno) && empty($selectTurma)) {
+			
+			$rain->setConteudo(array("mensagem"),array(
+				'mensagem' => "Aluno e turma não foram encontrados no sistema!",
+				'resultado' => "danger"
+			));
+		}elseif (!empty($selectAluno) && empty($selectTurma)) {
+			$rain->setConteudo(array("mensagem"),array(
+				'mensagem' => "A turma não foi encontrada no sistema!",
+				'resultado' => "danger"
+			));
+			
+		}elseif (!empty($selectTurma) && empty($selectAluno)) {
+			$rain->setConteudo(array("mensagem"),array(
+				'mensagem' => "O aluno não foi encontrado no sistema!",
+				'resultado' => "danger"
+			));
 		
-		$selectAluno[0] = array_merge($selectAluno[0], $arrayobjUsuario);
-
-		$aluno = $rain->setTable($selectAluno[0], $aluno);
-
-		$turma->setIdturma($idturma);
-
-		
-		$selectTurma = $crud->select($turma, true, array($turma->getCurso_idcurso(), $turma->getTurno_idturno()));
-
-		if (!empty($selectTurma)) {
-			$tipo->setIdtipo($selectTurma[0]['tipo_idtipo']);
-			$selectTipo = $crud->select($tipo, true);
-			$tipo = $rain->setTable($selectTipo[0], $tipo);
-
-		$arrayobjTipo = array(
-			'tipo_idtipo' => $tipo
-
-		);
-		$turno = $rain->setTable($selectTurma[0], $turno);
-
-		$selectTurma[0] = array_merge($selectTurma[0], $arrayobjTipo);
-		$curso = $rain->setTable($selectTurma[0], $curso);
-
-		$arrayobjCurso = array(
-			'curso_idcurso' => $curso,
-			'turno_idturno' => $turno
-
-		);
-
-		$selectTurma[0] = array_merge($selectTurma[0], $arrayobjCurso);
-		$turma = $rain->setTable($selectTurma[0], $turma);
-
-		$turma_has_aluno->setTurma_idturma($turma);
-		$turma_has_aluno->setAluno_idaluno($aluno);
-
-		
-
-
-		if (!empty($turma_has_aluno->getTurma_idturma()) && !empty($turma_has_aluno->getAluno_idaluno())) {
+		}elseif (!empty($selectTurma) && !empty($selectAluno)) {
 			
 			$rain->setConteudo(array("cadastro_turma_has_aluno"),array(
 				'title' => "Cadastrar",
 				'action' => "insert",
-				'idturma' => $turma_has_aluno->getTurma_idturma()->getIdturma(),
-				'nome_curso' => $turma_has_aluno->getTurma_idturma()->getCurso_idcurso()->getNome_curso(),
-				'idcurso' => $turma_has_aluno->getTurma_idturma()->getCurso_idcurso()->getIdCurso(),
-				'idaluno' => $turma_has_aluno->getAluno_idaluno()->getIdaluno(),
-				'nome_usuario' => $turma_has_aluno->getAluno_idaluno()->getUsuario_idusuario()->getNome_usuario(),
-				'cpf' => $turma_has_aluno->getAluno_idaluno()->getUsuario_idusuario()->getCpf(),
-				'data_inicio' =>Convert::date_to_string( $turma_has_aluno->getTurma_idturma()->getData_inicio()),
-				'data_termino' =>Convert::date_to_string($turma_has_aluno->getTurma_idturma()->getData_termino()),
-				'nome_tipo' => $turma_has_aluno->getTurma_idturma()->getCurso_idcurso()->getTipo_idtipo()->getNome_tipo(),
-				'nome_turno' =>$turma_has_aluno->getTurma_idturma()->getTurno_idturno()->getNome_turno(),
-				'matricula' => $turma_has_aluno->getMatricula()
+				'idturma' => $selectTurma[0]['idturma'],
+				'nome_curso' => $selectTurma[0]['nome_curso'],
+				'idcurso' => $selectTurma[0]['idcurso'],
+				'idaluno' => $selectAluno[0]['idaluno'],
+				'nome_usuario' => $selectAluno[0]['nome_usuario'],
+				'cpf' => $selectAluno[0]['cpf'],
+				'data_inicio' =>Convert::date_to_string($selectTurma[0]['data_inicio']),
+				'data_termino' =>Convert::date_to_string($selectTurma[0]['data_termino']),
+				'nome_tipo' =>$selectTurma[0]['nome_tipo'],
+				'nome_turno' =>$selectTurma[0]['nome_turno']
 				
-			) );
-		}
-		else
-		{
-			$rain->setConteudo(array("mensagem"),array(
-				'mensagem' => "Erro ao cadastrar matrícula",
-				'resultado' => "danger"
-			) );
-		}
-		}
-		else{
-			$rain->setConteudo(array("mensagem", "busca_turma_has_aluno"),array(
-				'mensagem' => "Turma não foi encontrada",
-				'resultado' => "danger"
-			) );
-		}
-		}
-		else{
-			$rain->setConteudo(array("mensagem", "busca_turma_has_aluno"),array(
-				'mensagem' => "Aluno não foi encontrado",
-				'resultado' => "danger"
 			) );
 		}
 	}
@@ -318,38 +254,40 @@ class TurmaHasAlunoRotas
 		$acesso = Controller::getAcesso($_SESSION);
 		$rain = new RainTpl($acesso);
 		$crud = new TurmaHasAlunoController();
-		$turma = new Turma();
-		$aluno = new Aluno();
-		$curso = new Curso();
 
-		$resAluno = $crud->getDataToCpf($_POST['cpf']);
-		$resTurma = $crud->getDataToIdTurma($_POST['idturma']);
+		$selectAluno = $crud->select2(new Aluno(),true,array('usuario' => array()),array(),array('cpf' => $_POST['cpf'], 'usuario_status' => 1));
 		
-		if (!empty($resAluno) && !empty($resTurma)) {
+		$selectTurma = $crud->select2(new Turma(),true,array('turno' => array(),'curso' => array('tipo' => array())),array(),array('idturma' => $_POST['idturma']));
+		
+		if (!empty($selectAluno) && !empty($selectTurma)) {
 			
 
 			$rain->setConteudo(array("mensagem","busca_turma_has_aluno","resultado_busca_turma_has_aluno"),array(
-					'idaluno' => $resAluno[0]['idaluno'],
-					'cpf'=> $resAluno[0]['cpf'],
-					'nome_usuario' => $resAluno[0]['nome_usuario'],
-					'dtnasc' => Convert::date_to_string($resAluno[0]['dtnasc']),
-					'idturma' => $resTurma[0]['idturma'],
-					'idcurso' => $resTurma[0]['idcurso'],
-					'nome_curso' => $resTurma[0]['nome_curso'],
-					'nome_tipo' => $resTurma[0]['nome_tipo'],
-					'data_inicio' => Convert::date_to_string($resTurma[0]['data_inicio']),
-					'data_termino' => Convert::date_to_string($resTurma[0]['data_termino']),
-					'nome_turno' => $resTurma[0]['nome_turno'],
-					'mensagem' => "Dados encontrados com sucesso",
+					'idaluno' => $selectAluno[0]['idaluno'],
+					'cpf'=> $selectAluno[0]['cpf'],
+					'nome_usuario' => $selectAluno[0]['nome_usuario'],
+					'dtnasc' => Convert::date_to_string($selectAluno[0]['dtnasc']),
+					'idturma' => $selectTurma[0]['idturma'],
+					'idcurso' => $selectTurma[0]['idcurso'],
+					'nome_curso' => $selectTurma[0]['nome_curso'],
+					'nome_tipo' => $selectTurma[0]['nome_tipo'],
+					'data_inicio' => Convert::date_to_string($selectTurma[0]['data_inicio']),
+					'data_termino' => Convert::date_to_string($selectTurma[0]['data_termino']),
+					'nome_turno' => $selectTurma[0]['nome_turno'],
+					'mensagem' => "Dados encontrados com sucesso!",
 					'resultado' => "success"
 			) );
 
 		}
 		else{
-			if (empty($resAluno)) {
-				$mensagem = "Erro ao encontrar CPF ".$_POST['cpf'];
-			}else{
+			$cpf = $crud->mask($_POST['cpf'],'###.###.###-##');
+			if (empty($selectAluno) && empty($selectTurma)) {
+				$mensagem = "Cpf ".$cpf." e turma ".$_POST['idturma']." não foram encontrados! verifique se o aluno já ativou sua conta no sistema!";
+			}elseif(empty($selectTurma)){
 				$mensagem = "Erro ao encontrar turma ".$_POST['idturma'];
+			}
+			else{
+				$mensagem = "Erro ao encontrar CPF ".$cpf." ou o aluno ainda está desativado no sistema!";
 			}
 			$rain->setConteudo(array("mensagem","busca_turma_has_aluno" ),array(
 				'mensagem' => $mensagem,

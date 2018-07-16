@@ -18,6 +18,7 @@ class VerificaSql extends CrudSql
 		return $this->executeSql($q, $values);
 	}
 	
+	
 }
 
 

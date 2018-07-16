@@ -16,6 +16,8 @@ use \Slim\Slim;
  */
 class ValidacaoRotas
 {
+
+
 	public function validacaoEmail($idusuario)
 	{
 		$user = new Usuario();
@@ -54,7 +56,7 @@ class ValidacaoRotas
 					}else{
 
 						
-		$rain = new RainTpl();
+					$rain = new RainTpl();
 						$rain->setConteudo(array("mensagem"),array(
 							'mensagem' => "Usuário não encontrado!",
 							'resultado' => "danger"

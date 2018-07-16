@@ -37,11 +37,6 @@ class EmprestimoController extends CrudController
 		return $sql->update_status_patrimonio($idpatrimonio);
 	}
 
-	public function update_status_patrimonio2($idpatrimonio){
-		$sql = new EmprestimoSql();
-		return $sql->update_status_patrimonio2($idpatrimonio);
-	}
-
 	public function getQtdeLivros($idusuario){
 		$sql = new EmprestimoSql();
 		return $sql->getQtdeLivros($idusuario);
@@ -50,6 +45,12 @@ class EmprestimoController extends CrudController
 	public function getMultasAtivas($idusuario){
 		$sql = new EmprestimoSql();
 		return $sql->getMultasAtivas($idusuario);
+	}
+
+	public function contaData($devolucao,$previsao){
+		$sql = new EmprestimoSql();
+		return $sql->contaData($devolucao,$previsao);
+
 	}
 
 	public function getStatusEmprestimoFuncionario($idusuario)

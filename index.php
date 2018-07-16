@@ -16,6 +16,11 @@
 			\ViewController\view\routers\ValidacaoRotas::validacaoEmail($idusuario);
 	});
 
+	$app->get("/valida/email/disabled/:idusuario", function($idusuario){
+
+			\ViewController\view\routers\ValidacaoRotas::validacaoEmailDisabled($idusuario);
+	});
+
 	$app->get("/valida/funcionario/:idusuario",function($idusuario)
 	{
 		session_start();
@@ -537,7 +542,6 @@
 
 
 	});
-
 	
 	$app->get("/crud/usuario/verify/",function()
 	{
@@ -634,6 +638,12 @@
 			) );
 		};
 		
+	});
+
+	$app->post("/crud/alter/usuario/senha/email/forget/alter",function(){
+
+		\ViewController\view\routers\UsuarioRotas::post_update_senha_email_forget_alter();
+
 	});
 
 	$app->get("/crud/alter/usuario/senha/email/forget/alter", function(){

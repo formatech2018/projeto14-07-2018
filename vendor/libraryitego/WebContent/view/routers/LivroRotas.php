@@ -224,12 +224,23 @@ class LivroRotas
 
 		//$list = array_merge($list, $previous);
 		$resultado = $crud->read(new Livro(),$list, array(new Editora(), new Area()));
-		$rain->setConteudo(array("read_livro_usuario", "pagination"), array(
 
-			'resultlivro' => $resultado[0],
-			'pages' => $rain->getPagination($resultado[0], $inicio,$limite,$resultado[1][0]["COUNT(*)"]),
-			'table' => 'livro/usuario'
-		));
+		if ($resultado[1][0]['COUNT(*)'] != 0) {
+				$rain->setConteudo(array("read_livro_usuario", "pagination"), array(
+
+				'resultlivro' => $resultado[0],
+				'pages' => $rain->getPagination($resultado[0], $inicio,$limite,$resultado[1][0]["COUNT(*)"]),
+				'table' => 'livro/usuario'
+			));
+		}
+		else{
+			$rain->setConteudo(array("mensagem"),array(
+				'mensagem' => "Não existem livros cadastrados no sistema!",
+				'resultado' => "danger"
+				
+			) );
+
+		}
 		
 	}	
 
